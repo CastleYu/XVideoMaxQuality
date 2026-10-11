@@ -1,0 +1,25 @@
+<!doctype html>
+<meta charset="utf-8">
+<!-- video.twimg.com 会以 403 拒绝非 X 来源的 Referer -->
+<meta name="referrer" content="no-referrer">
+<title>XVMQ e2e</title>
+<!-- 与插件相同的注入顺序：先于播放器加载 -->
+<script src="../src/const.js"></script>
+<script src="../src/m3u8.js"></script>
+<script src="../src/hook.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
+<video id="v" muted autoplay controls width="360"></video>
+<pre id="out">running...</pre>
+<script>
+  const src = new URLSearchParams(location.search).get('src');
+  const v = document.getElementById('v');
+  const hls = new Hls();
+  hls.on(Hls.Events.MANIFEST_PARSED, (_, d) => {
+    window.levels = d.levels.map(l => `${l.width}x${l.height}`);
+  });
+  hls.loadSource(src);
+  hls.attachMedia(v);
+  v.addEventListener('loadeddata', () => {
+    document.getElementById('out').textContent = JSON.stringify({ levels: window.levels, playing: `${v.videoWidth}x${v.videoHeight}` });
+  });
+</script>
